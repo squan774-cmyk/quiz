@@ -1,0 +1,527 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<title>兵庫県政クイズ</title>
+<style>
+  :root{
+    --bg:#0b1220;
+    --panel:#0f1724;
+    --accent:#ffd166;
+    --text:#e6eef8;
+    --muted:#9fb1c8;
+    --barbg:#213246;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:linear-gradient(180deg,#08121b 0%, #0b1622 100%);font-family:system-ui,-apple-system,Segoe UI,Roboto,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;color:var(--text);-webkit-tap-highlight-color:transparent}
+  #app{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:env(safe-area-inset-top) 12px 12px;gap:12px}
+  header{width:100%;max-width:900px;display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:rgba(255,255,255,0.02);border-radius:12px}
+  header h1{margin:0;font-size:16px}
+  main{width:100%;max-width:900px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:12px}
+  .stage{position:relative;min-height:420px;padding:12px;border-radius:10px;background:rgba(0,0,0,0.12);display:flex;flex-direction:column;align-items:center;gap:10px}
+  .question{font-size:18px;text-align:center;padding:6px 12px;background:rgba(255,255,255,0.02);border-radius:8px;min-height:46px;display:flex;align-items:center;justify-content:center}
+  .choices{display:flex;width:100%;gap:12px;justify-content:center}
+  .choice{flex:1;min-height:84px;border-radius:10px;background:rgba(255,255,255,0.03);display:flex;align-items:center;justify-content:center;font-size:18px;padding:12px;position:relative;touch-action: manipulation;user-select:none}
+  .choice.disabled{opacity:0.6;pointer-events:none}
+  .choice .overlayIcon{position:absolute;top:-26px;left:50%;transform:translateX(-50%);width:64px;height:64px;pointer-events:none;display:none}
+  .choice .mark{position:absolute;top:6px;right:6px;font-size:34px;line-height:1;pointer-events:none}
+  .timerWrap{width:100%;height:18px;background:var(--barbg);border-radius:10px;overflow:hidden}
+  .timerBar{height:100%;width:100%;background:linear-gradient(90deg,var(--accent),#ff9f43);transition:width 0.1s linear}
+  .bottomRow{display:flex;justify-content:space-between;align-items:flex-end;width:100%}
+  .avatarPanel{width:48%;display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-height:120px;position:relative}
+  .avatarPanel.cpu{align-items:flex-end}
+  .avatarBox{position:relative;width:140px;height:140px;border-radius:12px;overflow:visible;display:flex;align-items:center;justify-content:center}
+  .avatarBox img{max-width:100%;max-height:100%;display:block}
+  .scorePanel{position:absolute;inset:auto 0 0 0;background:rgba(0,0,0,0.35);padding:6px 10px;border-radius:8px;color:var(--text);font-weight:700;display:flex;gap:8px;align-items:center;justify-content:center}
+  .scorePanel .label{font-size:12px;color:var(--muted);font-weight:600}
+  .controls{display:flex;gap:8px;align-items:center}
+  button{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.03);color:var(--text);padding:8px 12px;border-radius:10px;font-weight:700;cursor:pointer}
+  .explain{background:rgba(0,0,0,0.4);padding:12px;border-radius:10px}
+  .centerMessage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+  .bigText{font-size:28px;font-weight:900;text-align:center;background:linear-gradient(90deg,#fff,#dfefff);-webkit-background-clip:text;background-clip:text;color:transparent}
+  footer{width:100%;max-width:900px;display:flex;justify-content:center;padding:10px;color:var(--muted);font-size:12px}
+  /* small screen adjustments */
+  @media (max-width:520px){
+    .avatarBox{width:110px;height:110px}
+    .choice .overlayIcon{width:52px;height:52px;top:-22px}
+    .choice{min-height:74px;font-size:16px}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header>
+    <h1>兵庫県政クイズ— プレイヤー vs 斎藤元彦</h1>
+    <div class="controls">
+      <button id="restartBtn">リスタート</button>
+      <button id="bgmToggle">BGM: 再生</button>
+    </div>
+  </header>
+
+  <main>
+    <div class="stage" id="stage">
+ <!-- 追加ここから -->
+    <div id="startScreen" style="text-align:center; margin-top:40px;">
+      <button id="startBtn" style="font-size:20px; padding:12px 24px;">クイズスタート</button>
+    </div>
+      <div class="question" id="questionText">読み込み中...</div>
+
+      <div class="choices" id="choices">
+        <div class="choice" id="choiceA" data-choice="A">
+          <div class="overlayIcon" id="overlayA"><img src="player4.png" alt="player icon" style="width:100%;height:100%"></div>
+          <div class="overlayIcon" id="overlayA_cpu" style="display:none"><img src="hiko5.png" alt="cpu icon" style="width:100%;height:100%"></div>
+          <div class="mark" id="markA"></div>
+          <div class="text" id="textA">A</div>
+        </div>
+        <div class="choice" id="choiceB" data-choice="B">
+          <div class="overlayIcon" id="overlayB"><img src="player4.png" alt="player icon" style="width:100%;height:100%"></div>
+          <div class="overlayIcon" id="overlayB_cpu" style="display:none"><img src="hiko5.png" alt="cpu icon" style="width:100%;height:100%"></div>
+          <div class="mark" id="markB"></div>
+          <div class="text" id="textB">B</div>
+        </div>
+      </div>
+
+      <div style="width:100%;display:flex;gap:12px;flex-direction:column">
+        <div class="timerWrap"><div class="timerBar" id="timerBar"></div></div>
+      </div>
+
+      <div class="bottomRow">
+        <div class="avatarPanel player">
+          <div class="avatarBox">
+            <img id="playerImg" src="player.png" alt="player">
+            <div class="scorePanel" id="playerScorePanel" style="left:180px;bottom:10px;">
+              <div style="display:flex;flex-direction:column">
+                <div class="label">PLAYER</div>
+                <div id="playerScore" style="font-size:22px">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="avatarPanel cpu">
+          <div class="avatarBox">
+            <img id="cpuImg" src="hiko.png" alt="cpu">
+            <div class="scorePanel" id="cpuScorePanel" style="right:200px;bottom:10px;">
+              <div style="display:flex;flex-direction:column;align-items:flex-end">
+                <div class="label">斎藤元彦</div>
+                <div id="cpuScore" style="font-size:22px">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="explainArea" style="width:100%;display:none" class="explain">
+        <div id="explainText"></div>
+        <div style="display:flex;justify-content:flex-end;margin-top:8px">
+          <button id="nextBtn">次へ</button>
+        </div>
+      </div>
+
+      <div class="centerMessage" id="centerMessage" style="display:none;pointer-events:auto">
+        <div style="text-align:center">
+          <div class="bigText" id="centerMain"></div>
+          <div style="margin-top:12px">
+            <button id="centerAction">再プレイ</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>※このクイズは正しい資料に基づいて作られています。</footer>
+</div>
+
+<!-- Audio (preload) -->
+<audio id="sfxCorrect" src="pinpon.mp3" preload="auto"></audio>
+<audio id="sfxWrong" src="bu.mp3" preload="auto"></audio>
+<audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
+
+<script>
+(() => {
+  // --- 質問定義（ユーザー提供の問題） ---
+  const allQuestions = [
+    {id:1, q:"当時の対応は？", A:"適切", B:"不適切", correct:"B", cpu:"A_wrong", explain:"第三者委員会は当時の対応は不適切だったと認定した。"},
+    {id:2, q:"斎藤元彦の告発者探しは違法？それとも適法？", A:"違法", B:"適法", correct:"A", cpu:"B_wrong", explain:"第三者委員会は斎藤元彦による告発者探しを違法と認定した。"},
+    {id:3, q:"斎藤元彦が違反したのは公益通報□保護法。□に入るのは？", A:"者", B:"何も入らない", correct:"A", cpu:"B_wrong", explain:"斎藤元彦は何故か「者」を抜いて公益通報保護法と言う。"},
+    {id:4, q:"斎藤元彦が認定されたパワハラは何件？", A:"10件", B:"0件", correct:"A", cpu:"B_wrong", explain:"第三者委員会は調査した16項目中10項目をパワハラと認定した。"},
+    {id:5, q:"斎藤元彦が「折を見てよろしく」とおねだりした物は何？", A:"ワイン", B:"記憶に無い", correct:"A", cpu:"B_wrong", explain:"元彦がワインをおねだりしていた証拠音声を突き付けられた際の第一声が「記憶に無い」だった。"},
+    {id:6, q:"斎藤元彦が兵庫県知事選でタッグを組んだのは？", A:"立花孝志", B:"立花孝志", correct:"AB", cpu:"silent_hiko4", explain:"立花孝志は斎藤元彦を支援するという異例の目的で立候補した。"},
+    {id:7, q:"百条委員会委員の務めを全うしたのは？", A:"奥谷謙一", B:"増山誠", correct:"A", cpu:"B_wrong", explain:"奥谷謙一県議は委員長として最後まで中立を守った。"},
+    {id:8, q:"支援者が斎藤元彦に送ったLINE(既読)に名前が出た県議は？", A:"岸口実", B:"岸口実", correct:"AB", cpu:"silent_hiko4", explain:"LINEの内容は、元県民局長の私的情報を暴露されたくなければ元局長を百条委員会に呼ぶなと岸口実が脅しをかけたという話。LINEの日付は2024年6月29日。この時点で岸口と斎藤元彦は元局長の私的情報について知っていた事になり、その後の証言と矛盾する。週刊誌に報じられたこの件について、斎藤元彦は報道を知らないと言って逃げ続けている。"},
+    {id:9, q:"ホテルオークラにて立花孝志に怪文書を渡したのは？", A:"岸口実", B:"岸口実", correct:"AB", cpu:"silent_hiko4", explain:"様々な県議に関するデマまみれの怪文書を岸口が立花に渡したせいで、多くの誹謗中傷が生まれた。"},
+    {id:10, q:"録音禁止の百条委員会秘密会にて、片山元副知事への質問時に録音をして立花孝志に渡した県議は？", A:"増山誠", B:"増山誠", correct:"AB", cpu:"silent_hiko4", explain:"増山誠は百条委員会を秘密会とする決議には賛成しておいて、自身の質問時に録音しそれを意図的に漏洩。"},
+    {id:11, q:"躍動の会の県議は三人。増山と岸口、あと一人は？", A:"", B:"", correct:"none", cpu:"silent", explain:"もう一人…いたっけ？"},
+    {id:12, q:"2025年10月現在、斎藤元彦が書類送検されてるのは背任罪と何？", A:"公選法違反", B:"地方公務員法違反", correct:"A", cpu:"silent_hiko4", explain:"地方公務員法違反でも告発されているが、書類送検はまだ先である(2025年10月現在)"},
+    {id:13, q:"斎藤元彦が自ら設置したのに報告を聞き入れなかった第三者委員会にかかった無駄な税金はいくら？", A:"5200万円", B:"0円", correct:"A", cpu:"B_wrong", explain:"斎藤元彦もその支持者達も第三者委員会に重きを置いていたが、不利な報告がなされた途端に態度を一変させ今日も第三者委員会叩きに精を出している。"},
+    {id:14, q:"斎藤元彦が好きなのは？", A:"自撮り", B:"公務", correct:"A", cpu:"A_correct", explain:"斎藤元彦は公務で町長から案内を受けた際、町長の話を聞かずに自撮りしていた事がバレて炎上した。"},
+    {id:15, q:"斎藤元彦が好きな食べ物は？", A:"ピザトースト", B:"何でも美味しくいただきます。", correct:"AB", cpu:"B_correct", explain:"選挙ウォッチャーちだい氏の質問から逃げ回る斎藤元彦は、誰でも答えられるであろう「好きな食べ物は？」という質問からも逃げてこう答えた。ちなみにピザトーストでも正解である。"},
+    {id:16, q:"百条委員会において増山誠が竹内元県議に関する事実誤認のデマを3連発して本人が後に誤りを認めましたが、誤りなのに何故か全乗っかりしてたのは誰？", A:"斎藤元彦", B:"斎藤元彦", correct:"AB", cpu:"silent_hiko4", explain:"増山の質問は竹内元県議が百条委員会において言っても無い話だったのに、斎藤元彦は元県議にそう言われて心が痛んだ、ショックだったと答えた。"},
+    {id:17, q:"真摯に？", A:"受け止める", B:"受け流す", correct:"B", cpu:"A_wrong", explain:"真摯に受け止めるは斎藤元彦の必殺技だが、実際に受け止めていた例(ためし)がない。"},
+    {id:18, q:"ゆかた祭りにおいて斎藤元彦がボランティアに怒鳴ったというデマを流したのは誰？", A:"竹内元県議", B:"姫路市関係者", correct:"none", cpu:"A_wrong", explain:"AERAの記事における記述は、元彦がボランティアに怒鳴ったのではなく、元彦の怒声がボランティアにも聞こえたというもの。それも姫路市関係者の証言である。元彦がボランティアに怒鳴ったというデマを竹内元県議が流したという話が全くのデマなのである。"},
+    {id:19, q:"告発者の私的情報を漏洩するよう指示したと第三者委員会に認定されたのは誰？", A:"斎藤元彦", B:"斎藤元彦", correct:"AB", cpu:"silent_hiko4", explain:"漏洩の実行犯井ノ本が元彦の指示だったと証言。当時同席していた小橋も同じように証言しており、その報告を確かに受けていたと片山元副知事も証言。"},
+    {id:20, q:"元県民局長による告発は井戸派のクーデターだった？", A:"はい", B:"いいえ", correct:"B", cpu:"A_wrong", explain:"一部流出した元県民局長の日記には井戸氏への不満も記されており、井戸派ではない事が判明。また、斎藤元彦を心配する記述もあった。"},
+    {id:21, q:"斎藤知事のお蔭で県の財政は改善された？", A:"はい", B:"いいえ", correct:"B", cpu:"A_wrong", explain:"企業の業績アップとコロナ禍があけた効果で税収が増しただけであり、斎藤元彦の財政に対する影響は特にない。"},
+    {id:22, q:"高校のトイレを綺麗にしたのは？", A:"井戸前知事", B:"斎藤元彦", correct:"A", cpu:"B_wrong", explain:"高校トイレ改修は井戸前知事による政策で、斎藤元彦就任前にほぼ終わっていた。残されていた分も元彦はノータッチだったと県教育委員会関係者が証言。"},
+    {id:23, q:"はばタンpay＋のPR用うちわのサンプルを持ってきた職員に斎藤元彦がパワハラをかました理由は？", A:"内容が間違えていた", B:"元彦の顔が印刷されてなかった", correct:"B", cpu:"B_correct", explain:"うちわを見た元彦は舌打ちをし、大きなため息をついてから何が悪いか分かるか？と職員を詰問した。正解はうちわに自分の顔を入れろだった。"},
+    {id:24, q:"閉店時間を過ぎても喫茶室に居座っていた斎藤元彦を注意したスタッフに向けて斎藤元彦が発したセリフとは？", A:"申し訳ありません。", B:"兵庫県知事です。", correct:"B", cpu:"B_correct", explain:"びっくりして兵庫県知事ですと名乗ったという常人には理解できない言い訳を斎藤元彦は展開した。"},
+    {id:25, q:"大赤字確定の楽市楽座に斎藤元彦が流した税金の額は？", A:"4億円", B:"吉村が悪い", correct:"A", cpu:"B_wrong", explain:"ガラガラである。"},
+    {id:26, q:"斎藤元彦を殿と慕う側近のアカウント名は？", A:"粗品", B:"祖品", correct:"B", cpu:"A_wrong", explain:"祖品(そしー)がそいつである。"}
+  ];
+
+  // ゲーム定数
+  const QUESTION_COUNT = 10; // 指示通り「10問」で勝負
+  const TIME_LIMIT = 10 * 1000; // 10秒（ms）
+  const TIMER_UPDATE_MS = 50;
+
+  // UI elements
+  const questionText = document.getElementById('questionText');
+  const choiceA = document.getElementById('choiceA');
+  const choiceB = document.getElementById('choiceB');
+  const textA = document.getElementById('textA');
+  const textB = document.getElementById('textB');
+  const overlayA = document.getElementById('overlayA');
+  const overlayB = document.getElementById('overlayB');
+  const overlayA_cpu = document.getElementById('overlayA_cpu');
+  const overlayB_cpu = document.getElementById('overlayB_cpu');
+  const markA = document.getElementById('markA');
+  const markB = document.getElementById('markB');
+  const timerBar = document.getElementById('timerBar');
+  const playerImg = document.getElementById('playerImg');
+  const cpuImg = document.getElementById('cpuImg');
+  const playerScoreEl = document.getElementById('playerScore');
+  const cpuScoreEl = document.getElementById('cpuScore');
+  const explainArea = document.getElementById('explainArea');
+  const explainText = document.getElementById('explainText');
+  const nextBtn = document.getElementById('nextBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  const bgmToggle = document.getElementById('bgmToggle');
+  const centerMessage = document.getElementById('centerMessage');
+  const centerMain = document.getElementById('centerMain');
+  const centerAction = document.getElementById('centerAction');
+
+  const sfxCorrect = document.getElementById('sfxCorrect');
+  const sfxWrong = document.getElementById('sfxWrong');
+  const bgm = document.getElementById('bgm');
+
+  // ゲーム state
+  let questions = [];
+  let currentIndex = 0;
+  let playerScore = 0;
+  let cpuScore = 0;
+  let timerStart = 0;
+  let timerTimer = null;
+  let remaining = TIME_LIMIT;
+  let answeredPlayer = false;
+  let answeredCPU = false;
+  let hasAnyCorrect = false;
+  let cpuWillBeSilent = false;
+  let currentQuestion = null;
+  let bgmPlaying = false;
+
+  // --- ヘルパー ---
+  function shuffle(arr){ for(let i=arr.length-1;i>0;i--){let j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]]} return arr }
+  function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
+
+  function pickQuestions(){
+    const pool = allQuestions.slice();
+    shuffle(pool);
+    return pool.slice(0, Math.min(QUESTION_COUNT, pool.length));
+  }
+
+  function resetOverlays(){
+    overlayA.style.display = 'none';
+    overlayB.style.display = 'none';
+    overlayA_cpu.style.display = 'none';
+    overlayB_cpu.style.display = 'none';
+    markA.textContent = '';
+    markB.textContent = '';
+    choiceA.classList.remove('disabled');
+    choiceB.classList.remove('disabled');
+  }
+
+  function playBGMIfNeeded(){
+    if(!bgmPlaying){
+      bgm.play().then(()=>{bgmPlaying=true; bgmToggle.textContent='BGM: 停止';}).catch(()=>{/* モバイルで無効ならボタン表示で対応 */});
+    }
+  }
+
+  bgmToggle.addEventListener('click', ()=>{
+    if(!bgmPlaying){
+      bgm.play().then(()=>{bgmPlaying=true; bgmToggle.textContent='BGM: 停止';}).catch(()=>{ alert('ブラウザが自動再生を許可しませんでした。画面をタップすると再生されることがあります。');});
+    } else {
+      bgm.pause(); bgm.currentTime = 0; bgmPlaying = false; bgmToggle.textContent='BGM: 再生';
+    }
+  });
+
+  // プレイヤーの回答処理
+  async function playerAnswer(choice){
+    if(answeredPlayer) return;
+    if(!currentQuestion) return;
+    // start BGM on first interaction (mobile autoplay workaround)
+    playBGMIfNeeded();
+
+    answeredPlayer = true;
+    // show player icon above chosen option
+    if(choice === 'A'){ overlayA.style.display='block'; } else { overlayB.style.display='block'; }
+
+    // Determine correctness
+    const correct = currentQuestion.correct;
+    const isCorrect = (correct === choice) || (correct === 'AB') || (correct === 'both' && (choice==='A'||choice==='B'));
+    if(correct === 'none') { // none correct
+      // both A and B are wrong
+      // so player is incorrect
+    }
+
+    if(isCorrect){
+      markChoice(choice, true);
+      playerScore++;
+      playerScoreEl.textContent = playerScore;
+      sfxCorrect.currentTime = 0; sfxCorrect.play().catch(()=>{});
+      // change images per rules: player correct -> player3.png; CPU image becomes hiko2.png per requirement
+      playerImg.src = 'player3.png';
+      cpuImg.src = 'hiko2.png';
+      hasAnyCorrect = true;
+      // show explanation immediately
+      clearTimer();
+      showExplanation();
+    } else {
+      markChoice(choice, false);
+      sfxWrong.currentTime = 0; sfxWrong.play().catch(()=>{});
+      playerImg.src = 'player2.png';
+      cpuImg.src = 'hiko3.png';
+      // If cpu hasn't answered and is allowed to answer later, continue; otherwise if both answered then end and show explanation
+      if(answeredCPU || (!cpuWillAnswerLater())) {
+        clearTimer();
+        showExplanation();
+      }
+    }
+    // disable player's further clicks
+    // (answeredPlayer used)
+  }
+
+  function cpuWillAnswerLater(){
+    // if cpu is in silent/hiko4/persistent silent mode -> false
+    return !cpuWillBeSilent && currentQuestion && currentQuestion.cpu !== 'silent' && currentQuestion.cpu !== 'silent_hiko4';
+  }
+
+  function markChoice(choice, ok){
+    const markEl = (choice==='A')?markA:markB;
+    markEl.textContent = ok ? '◯' : '×';
+  }
+
+  // CPUの回答シミュレーション
+  function scheduleCPUAnswer(){
+    answeredCPU = false;
+    cpuWillBeSilent = false;
+    const behavior = currentQuestion.cpu || '';
+    if(behavior === 'silent' || behavior === 'silent_hiko4'){
+      // change CPU to hiko4 if specified
+      if(behavior === 'silent_hiko4') cpuImg.src = 'hiko4.png';
+      cpuWillBeSilent = true;
+      return;
+    }
+
+    // determine cpu's choice depending on behavior tags:
+    // possible tags in our data: "A_wrong","B_wrong","A_correct","B_correct"
+    // default: answer immediately with a random delay, and choose A/B according to tag
+    let choice = 'A';
+    if(behavior === 'A_wrong') choice = 'A';
+    else if(behavior === 'B_wrong') choice = 'B';
+    else if(behavior === 'A_correct') choice = 'A';
+    else if(behavior === 'B_correct') choice = 'B';
+    else {
+      // fallback: choose randomly but not repeat correctness if design
+      choice = Math.random() < 0.5 ? 'A' : 'B';
+    }
+
+    // simulate CPU answering quickly (few hundred ms) unless player answered first
+    const delay = 400 + Math.floor(Math.random()*400); // 400-800ms
+    setTimeout(()=>{
+      if(answeredCPU) return;
+      // If player already answered and it was correct (so question ended), CPU should not answer
+      if(hasAnyCorrect) return;
+      // CPU answers
+      answeredCPU = true;
+      // show CPU icon on chosen option
+      if(choice === 'A') overlayA_cpu.style.display = 'block'; else overlayB_cpu.style.display = 'block';
+
+      const correct = currentQuestion.correct;
+      const isCorrect = (correct === choice) || (correct === 'AB');
+
+      if(isCorrect){
+        markChoice(choice, true);
+        cpuScore++;
+        cpuScoreEl.textContent = cpuScore;
+        sfxCorrect.currentTime = 0; sfxCorrect.play().catch(()=>{});
+        // CPU correct -> cpu3? Wait mapping: "クイズ正解時のCPU(hiko3.png)"
+        cpuImg.src = 'hiko3.png';
+        // Also per user: "CPUがクイズに正解した時のプレイヤー(player2.png)" -> show player2
+        playerImg.src = 'player2.png';
+        hasAnyCorrect = true;
+        clearTimer();
+        showExplanation();
+      } else {
+        markChoice(choice, false);
+        sfxWrong.currentTime = 0; sfxWrong.play().catch(()=>{});
+        // CPU wrong -> per mapping CPU wrong image hiko2.png, player becomes player3.png
+        cpuImg.src = 'hiko2.png';
+        playerImg.src = 'player3.png';
+        // if player already answered or player cannot answer anymore, end
+        if(answeredPlayer || !playerCanAnswer()) {
+          clearTimer();
+          showExplanation();
+        }
+      }
+    }, delay);
+  }
+
+  function playerCanAnswer(){
+    return !answeredPlayer;
+  }
+
+  function clearTimer(){
+    if(timerTimer) { clearInterval(timerTimer); timerTimer = null; }
+  }
+
+  function startTimer(){
+    clearTimer();
+    timerStart = Date.now();
+    remaining = TIME_LIMIT;
+    timerBar.style.width = '100%';
+    timerTimer = setInterval(()=>{
+      const elapsed = Date.now() - timerStart;
+      remaining = TIME_LIMIT - elapsed;
+      const pct = clamp(remaining / TIME_LIMIT, 0, 1);
+      timerBar.style.width = (pct*100) + '%';
+      if(remaining <= 0){
+        clearTimer();
+        // timeout behavior
+        handleTimeUp();
+      }
+    }, TIMER_UPDATE_MS);
+  }
+
+  function handleTimeUp(){
+    // if no one answered correctly -> play wrong sound
+    if(!hasAnyCorrect){
+      sfxWrong.currentTime = 0; sfxWrong.play().catch(()=>{});
+    }
+    // show marks on choices if unanswered? we just show explanation
+    showExplanation();
+  }
+
+  // show explanation panel
+  function showExplanation(){
+    explainArea.style.display = 'block';
+    explainText.textContent = currentQuestion.explain || '説明なし';
+    // disable choices
+    choiceA.classList.add('disabled');
+    choiceB.classList.add('disabled');
+  }
+
+  // move to next question
+  function nextQuestion(){
+    explainArea.style.display = 'none';
+    resetOverlays();
+    currentIndex++;
+    if(currentIndex >= questions.length){
+      endGame();
+    } else {
+      loadQuestion(currentIndex);
+    }
+  }
+
+  function endGame(){
+    // show final status
+    clearTimer();
+    choiceA.classList.add('disabled'); choiceB.classList.add('disabled');
+    centerMessage.style.display = 'flex';
+    if(playerScore > cpuScore){
+      centerMain.textContent = 'プレイヤーの勝利！\nおめでとう';
+      // player->player3, cpu->hiko2
+      playerImg.src = 'player3.png';
+      cpuImg.src = 'hiko2.png';
+    } else if (playerScore < cpuScore){
+      centerMain.textContent = 'プレイヤーの敗北';
+      playerImg.src = 'player2.png';
+      cpuImg.src = 'hiko3.png';
+    } else {
+      centerMain.textContent = '引き分け';
+      // neutral images
+      playerImg.src = 'player.png';
+      cpuImg.src = 'hiko.png';
+    }
+  }
+
+  function startGame(){
+    // init
+    questions = pickQuestions();
+    currentIndex = 0;
+    playerScore = 0; cpuScore = 0;
+    playerScoreEl.textContent = playerScore;
+    cpuScoreEl.textContent = cpuScore;
+    centerMessage.style.display = 'none';
+    resetOverlays();
+    loadQuestion(0);
+  }
+
+  function loadQuestion(index){
+    // reset flags
+    answeredPlayer = false; answeredCPU = false; hasAnyCorrect = false; cpuWillBeSilent = false;
+    playerImg.src = 'player.png';
+    cpuImg.src = 'hiko.png';
+    choiceA.classList.remove('disabled'); choiceB.classList.remove('disabled');
+    markA.textContent = ''; markB.textContent = '';
+    overlayA.style.display = 'none'; overlayB.style.display = 'none'; overlayA_cpu.style.display='none'; overlayB_cpu.style.display='none';
+    explainArea.style.display = 'none';
+    currentQuestion = questions[index];
+    // show q
+    questionText.textContent = currentQuestion.q;
+    textA.textContent = 'A. ' + currentQuestion.A;
+    textB.textContent = 'B. ' + currentQuestion.B;
+
+    // start timer
+    startTimer();
+
+    // schedule CPU behavior (immediate answers etc.)
+    scheduleCPUAnswer();
+  }
+
+  // UI bindings
+  choiceA.addEventListener('click', ()=>{ if(!choiceA.classList.contains('disabled')) playerAnswer('A'); });
+  choiceB.addEventListener('click', ()=>{ if(!choiceB.classList.contains('disabled')) playerAnswer('B'); });
+  // touch-friendly: also respond to touchstart
+  choiceA.addEventListener('touchstart', (e)=>{ e.preventDefault(); if(!choiceA.classList.contains('disabled')) playerAnswer('A'); }, {passive:false});
+  choiceB.addEventListener('touchstart', (e)=>{ e.preventDefault(); if(!choiceB.classList.contains('disabled')) playerAnswer('B'); }, {passive:false});
+
+  nextBtn.addEventListener('click', ()=>{ nextQuestion(); });
+  restartBtn.addEventListener('click', ()=>{ startGame(); });
+  centerAction.addEventListener('click', ()=>{ startGame(); });
+
+  // Ensure sounds are unlocked on first user interaction
+  document.addEventListener('click', () => {
+    playBGMIfNeeded();
+  }, { once: true });
+
+// --- クイズスタートボタン ---
+const startBtn = document.getElementById('startBtn');
+
+startBtn.addEventListener('click', () => {
+  // スタートボタンを非表示にして
+  document.getElementById('startScreen').style.display = 'none';
+
+  // BGM再生を有効化（スマホ対応）
+  playBGMIfNeeded();
+
+  // ゲーム開始
+  startGame();
+});
+
+  // Safety: if bgm didn't start due to autoplay restrictions, user can press bgmToggle
+})();
+</script>
+</body>
+</html>
