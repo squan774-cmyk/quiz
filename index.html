@@ -47,6 +47,45 @@
     .choice .overlayIcon{width:52px;height:52px;top:-22px}
     .choice{min-height:74px;font-size:16px}
   }
+.avatarBox {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* スコアパネルを画像の下中央に配置 */
+.scorePanel {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.35);
+  padding: 6px 10px;
+  border-radius: 8px;
+  color: var(--text);
+  font-weight: 700;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+}
+
+/* スマホでは少し小さく */
+@media (max-width:520px){
+  .avatarBox {
+    width: 110px;
+    height: 110px;
+  }
+  .scorePanel {
+    bottom: -8px;
+    font-size: 14px;
+    min-width: 80px;
+  }
+}
 </style>
 </head>
 <body>
@@ -90,7 +129,7 @@
         <div class="avatarPanel player">
           <div class="avatarBox">
             <img id="playerImg" src="player.png" alt="player">
-            <div class="scorePanel" id="playerScorePanel" style="left:180px;bottom:10px;">
+            <div class="scorePanel" id="playerScorePanel">
               <div style="display:flex;flex-direction:column">
                 <div class="label">PLAYER</div>
                 <div id="playerScore" style="font-size:22px">0</div>
@@ -102,7 +141,7 @@
         <div class="avatarPanel cpu">
           <div class="avatarBox">
             <img id="cpuImg" src="hiko.png" alt="cpu">
-            <div class="scorePanel" id="cpuScorePanel" style="right:200px;bottom:10px;">
+            <div class="scorePanel" id="cpuScorePanel">
               <div style="display:flex;flex-direction:column;align-items:flex-end">
                 <div class="label">斎藤元彦</div>
                 <div id="cpuScore" style="font-size:22px">0</div>
