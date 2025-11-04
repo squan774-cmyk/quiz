@@ -182,36 +182,36 @@
 (() => {
   // --- 質問定義（ユーザー提供の問題） ---
   const allQuestions = [
-    {id:1, q:"当時の対応は？", A:"適切", B:"不適切", correct:"B", cpu:"A_wrong", explain:"第三者委員会は当時の対応は不適切だったと認定した。"},
-    {id:2, q:"斎藤元彦の告発者探しは違法？それとも適法？", A:"違法", B:"適法", correct:"A", cpu:"B_wrong", explain:"第三者委員会は斎藤元彦による告発者探しを違法と認定した。"},
-    {id:3, q:"斎藤元彦が違反したのは公益通報□保護法。□に入るのは？", A:"者", B:"何も入らない", correct:"A", cpu:"B_wrong", explain:"斎藤元彦は何故か「者」を抜いて公益通報保護法と言う。"},
-    {id:4, q:"斎藤元彦が認定されたパワハラは何件？", A:"10件", B:"0件", correct:"A", cpu:"B_wrong", explain:"第三者委員会は調査した16項目中10項目をパワハラと認定した。"},
-    {id:5, q:"斎藤元彦が「折を見てよろしく」とおねだりした物は何？", A:"ワイン", B:"記憶に無い", correct:"A", cpu:"B_wrong", explain:"元彦がワインをおねだりしていた証拠音声を突き付けられた際の第一声が「記憶に無い」だった。"},
+    {id:1, q:"当時の対応は？", A:"適切", B:"不適切", correct:"B", cpu:"A_wrong", cpuDelay:1,explain:"第三者委員会は当時の対応は不適切だったと認定した。"},
+    {id:2, q:"斎藤元彦の告発者探しは違法？それとも適法？", A:"違法", B:"適法", correct:"A", cpu:"B_wrong", cpuDelay:1,explain:"第三者委員会は斎藤元彦による告発者探しを違法と認定した。"},
+    {id:3, q:"斎藤元彦が違反したのは公益通報□保護法。□に入るのは？", A:"者", B:"何も入らない", correct:"A", cpu:"B_wrong", cpuDelay:2,explain:"斎藤元彦は何故か「者」を抜いて公益通報保護法と言う。"},
+    {id:4, q:"斎藤元彦が認定されたパワハラは何件？", A:"10件", B:"0件", correct:"A", cpu:"B_wrong", cpuDelay:1,explain:"第三者委員会は調査した16項目中10項目をパワハラと認定した。"},
+    {id:5, q:"斎藤元彦が「折を見てよろしく」とおねだりした物は何？", A:"ワイン", B:"記憶に無い", correct:"A", cpu:"B_wrong", cpuDelay:1,explain:"元彦がワインをおねだりしていた証拠音声を突き付けられた際の第一声が「記憶に無い」だった。"},
     {id:6, q:"サービス問題です。斎藤元彦が兵庫県知事選でタッグを組んだのは？", A:"立花孝志", B:"立花孝志", correct:"AB", cpu:"silent_hiko4", explain:"立花孝志は斎藤元彦を支援するという異例の目的で立候補した。"},
-    {id:7, q:"百条委員会委員の責務を全うしたのは？", A:"奥谷謙一", B:"増山誠", correct:"A", cpu:"B_wrong", explain:"奥谷謙一県議は委員長として最後まで中立を守った。"},
+    {id:7, q:"百条委員会委員の責務を全うしたのは？", A:"奥谷謙一", B:"増山誠", correct:"A", cpu:"B_wrong", cpuDelay:2,explain:"奥谷謙一県議は委員長として最後まで中立を守った。"},
     {id:8, q:"サービス問題です。支援者が斎藤元彦に送ったLINE(既読)に名前が出た県議は？", A:"岸口実", B:"岸口実", correct:"AB", cpu:"silent_hiko4", explain:"LINEの内容は、元県民局長の私的情報を暴露されたくなければ元局長を百条委員会に呼ぶなと岸口実が脅しをかけたという話。LINEの日付は2024年6月29日。この時点で岸口と斎藤元彦は元局長の私的情報について知っていた事になり、その後の証言と矛盾する。週刊誌に報じられたこの件について、斎藤元彦は報道を知らないと言って逃げ続けている。"},
     {id:9, q:"サービス問題です。ホテルオークラにて立花孝志に怪文書を渡したのは？", A:"岸口実", B:"岸口実", correct:"AB", cpu:"silent_hiko4", explain:"様々な県議に関するデマまみれの怪文書を岸口が立花に渡したせいで、多くの誹謗中傷が生まれた。"},
     {id:10, q:"サービス問題です。録音禁止の百条委員会秘密会にて、片山元副知事への質問時に録音をして立花孝志に渡した県議は？", A:"増山誠", B:"増山誠", correct:"AB", cpu:"silent_hiko4", explain:"増山誠は百条委員会を録音禁止の秘密会にする決議には賛成しておいて、自身の質問時に録音しそれを意図的に漏洩。"},
-    {id:11, q:"躍動の会の県議は三人。増山と岸口、あと一人は？", A:"白丼？", B:"臼井？", correct:"none", cpu:"silent", explain:"多分白井。"},
+    {id:11, q:"躍動の会の県議は三人。増山と岸口、あと一人は？", A:"白丼？", B:"臼井？", correct:"none", cpu:"silent", explain:"意気揚々と立花に情報を流すも立花も既知の情報だったので何の役にも立たなかった男の名は「日井」"},
     {id:12, q:"2025年10月現在、斎藤元彦が書類送検されてるのは背任罪と何？", A:"公選法違反", B:"地方公務員法違反", correct:"A", cpu:"silent_hiko4", explain:"地方公務員法違反でも告発されているが、書類送検はまだ先である(2025年10月現在)"},
-    {id:13, q:"斎藤元彦が自ら設置したのに報告を聞き入れなかった第三者委員会にかかった無駄な税金はいくら？", A:"5200万円", B:"0円", correct:"A", cpu:"B_wrong", explain:"斎藤元彦もその支持者達も第三者委員会に重きを置いていたが、不利な報告がなされた途端に態度を一変させ今日も第三者委員会叩きに精を出している。"},
-    {id:14, q:"斎藤元彦が好きなのは？", A:"自撮り", B:"公務", correct:"A", cpu:"A_correct", explain:"斎藤元彦は公務で町長から案内を受けた際、町長の話を聞かずに自撮りしていた事がバレて炎上した。"},
-    {id:15, q:"斎藤元彦が好きな食べ物は？", A:"ピザトースト", B:"何でも美味しくいただきます。", correct:"AB", cpu:"B_correct", explain:"選挙ウォッチャーちだい氏の質問から逃げ回る斎藤元彦は、誰でも答えられるであろう「好きな食べ物は？」という質問からも逃げてこう答えた。ちなみにピザトーストでも正解である。"},
+    {id:13, q:"斎藤元彦が自ら設置したのに報告を聞き入れなかった第三者委員会にかかった無駄な税金はいくら？", A:"5200万円", B:"0円", correct:"A", cpu:"B_wrong",cpuDelay:2, explain:"斎藤元彦もその支持者達も第三者委員会に重きを置いていたが、不利な報告がなされた途端に態度を一変させ今日も第三者委員会叩きに精を出している。"},
+    {id:14, q:"斎藤元彦が好きなのは？", A:"自撮り", B:"公務", correct:"A", cpu:"A_correct", cpuDelay:3,explain:"斎藤元彦は公務で町長から案内を受けた際、町長の話を聞かずに自撮りしていた事がバレて炎上した。"},
+    {id:15, q:"斎藤元彦が好きな食べ物は？", A:"ピザトースト", B:"何でも美味しくいただきます。", correct:"AB", cpu:"B_correct", cpuDelay:4,explain:"選挙ウォッチャーちだい氏の質問から逃げ回る斎藤元彦は、誰でも答えられるであろう「好きな食べ物は？」という質問からも逃げてこう答えた。ちなみにピザトーストでも正解である。"},
     {id:16, q:"サービス問題です。百条委員会において増山誠が竹内元県議に関する事実誤認のデマを3連発しましたが、誤りなのに何故か全乗っかりしてたのは誰？", A:"斎藤元彦", B:"斎藤元彦", correct:"AB", cpu:"silent_hiko4", explain:"増山の質問は竹内元県議が百条委員会において言っても無い話だったのに、斎藤元彦は元県議にそう言われて心が痛んだ、ショックだったと答えた。増山誠は後に事実誤認であったと認め、議事録が訂正された。"},
-    {id:17, q:"真摯に？", A:"受け止める", B:"受け流す", correct:"B", cpu:"A_wrong", explain:"真摯に受け止めるは斎藤元彦の必殺技だが、実際に受け止めていた例(ためし)がない。"},
-    {id:18, q:"ゆかた祭りにおいて斎藤元彦がボランティアに怒鳴ったというデマを流したのは誰？", A:"竹内元県議", B:"姫路市関係者", correct:"none", cpu:"A_wrong", explain:"AもBも不正確である。AERAの記事における記述は、元彦がボランティアに怒鳴ったのではなく、元彦の怒声がボランティアにも聞こえたというもの。それも姫路市関係者の証言である。元彦がボランティアに怒鳴ったというデマを竹内元県議が流したという話が全くのデマなのである。"},
+    {id:17, q:"真摯に？", A:"受け止める", B:"受け流す", correct:"B", cpu:"A_wrong", cpuDelay:2,explain:"真摯に受け止めるは斎藤元彦の必殺技だが、実際に受け止めていた例(ためし)がない。"},
+    {id:18, q:"ゆかた祭りにおいて斎藤元彦がボランティアに怒鳴ったというデマを流したのは誰？", A:"竹内元県議", B:"姫路市関係者", correct:"none", cpu:"A_wrong",cpuDelay:2, explain:"AもBも不正確である。AERAの記事における記述は、元彦がボランティアに怒鳴ったのではなく、元彦の怒声がボランティアにも聞こえたというもの。それも姫路市関係者の証言である。元彦がボランティアに怒鳴ったというデマを竹内元県議が流したという話は全くのデマである。"},
     {id:19, q:"サービス問題です。告発者の私的情報を漏洩するよう指示したと第三者委員会に認定されたのは誰？", A:"斎藤元彦", B:"斎藤元彦", correct:"AB", cpu:"silent_hiko4", explain:"漏洩の実行犯井ノ本が元彦の指示だったと証言。当時同席していた小橋も同じように証言しており、その報告を確かに受けていたと片山元副知事も証言。"},
-    {id:20, q:"元県民局長による告発は井戸派のクーデターだった？", A:"はい", B:"いいえ", correct:"B", cpu:"A_wrong", explain:"一部流出した元県民局長の日記には井戸氏への不満も記されており、井戸派ではない事が判明。また、斎藤元彦を心配する記述もあった。"},
-    {id:21, q:"斎藤知事のお蔭で県の財政は改善された？", A:"はい", B:"いいえ", correct:"B", cpu:"A_wrong", explain:"企業の業績アップとコロナ禍があけた効果で税収が増しただけであり、斎藤元彦の財政に対する影響は特にない。"},
-    {id:22, q:"高校のトイレを綺麗にしたのは？", A:"井戸前知事", B:"斎藤元彦", correct:"A", cpu:"B_wrong", explain:"高校トイレ改修は井戸前知事による政策で、斎藤元彦就任前にほぼ終わっていた。残されていた分も元彦はノータッチだったと県教育委員会関係者が証言。"},
-    {id:23, q:"はばタンpay＋のPR用うちわのサンプルを持ってきた職員に斎藤元彦がパワハラをかました理由は？", A:"内容が間違えていた", B:"元彦の顔が印刷されてなかった", correct:"B", cpu:"B_correct", explain:"うちわを見た元彦は舌打ちをし、大きなため息をついてから何が悪いか分かるか？と職員を詰問した。正解はうちわに自分の顔を入れろだった。"},
-    {id:24, q:"閉店時間を過ぎても喫茶室に居座っていた斎藤元彦を注意したスタッフに向けて斎藤元彦が発したセリフとは？", A:"申し訳ありません。", B:"兵庫県知事です。", correct:"B", cpu:"B_correct", explain:"びっくりして兵庫県知事ですと名乗ったという常人には理解できない言い訳を斎藤元彦は展開した。"},
-    {id:25, q:"大赤字確定の楽市楽座に斎藤元彦が流した税金の額は？", A:"4億円", B:"吉村が悪い", correct:"A", cpu:"B_wrong", explain:"ガラガラである。"},
-    {id:26, q:"斎藤元彦を殿と慕う側近のアカウント名は？", A:"粗品", B:"祖品", correct:"B", cpu:"A_wrong", explain:"祖品(そしー)がそいつである。"},
-    {id:27, q:"8月15日に戦没者慰霊式への出席を部下に押し付けて戦勝国の国旗をあしらったシャツを着て甲子園で野球観戦をして炎上した斎藤元彦。彼が自撮りしてた時に手に持っていたものは？", A:"岩津ネギ。", B:"かき氷。", correct:"B", cpu:"B_correct", explain:"終戦記念日に戦没者慰霊式をサボった挙句日本を倒した国の国旗をあしらったシャツを着用するという反日行為で大炎上した。"},
-    {id:28, q:"兵庫県の朝鮮学校への補助金支出額は全国何位？", A:"1位", B:"2位", correct:"A", cpu:"A_correct", explain:"斎藤元彦県政における朝鮮学校への補助金支出額は全国断トツ1位であり、日本全体の5割以上を占めている。"},
-    {id:29, q:"知らない人がいたという理由で斎藤元彦が部下にキレた場所は？", A:"更衣室", B:"知事室", correct:"A", cpu:"A_correct", explain:"知らない人がいてびっくりしたという理由で斎藤元彦は怒った。"},
-    {id:30, q:"昼食が冷めてた事に斎藤元彦がキレた時のメニューは？", A:"ごはんとみそ汁", B:"山椒味噌焼き", correct:"A", cpu:"A_correct", explain:"担当者は秘書広報室長から「知事が怒っている。なぜ冷えた料理を出したのか。」と叱責された。なお、適温で提供できなかったのは施設の関係であった。"}
+    {id:20, q:"元県民局長による告発は井戸派のクーデターだった？", A:"はい", B:"いいえ", correct:"B", cpu:"A_wrong", cpuDelay:2,explain:"一部流出した元県民局長の日記には井戸氏への不満も記されており、井戸派ではない事が判明。また、斎藤元彦を心配する記述もあった。"},
+    {id:21, q:"斎藤知事のお蔭で県の財政は改善された？", A:"はい", B:"いいえ", correct:"B", cpu:"A_wrong",cpuDelay:2, explain:"企業の業績アップとコロナ禍があけた効果で税収が増しただけであり、斎藤元彦の財政に対する影響は特にない。"},
+    {id:22, q:"高校のトイレを綺麗にしたのは？", A:"井戸前知事", B:"斎藤元彦", correct:"A", cpu:"B_wrong", cpuDelay:2,explain:"高校トイレ改修は井戸前知事による政策で、斎藤元彦就任前にほぼ終わっていた。残されていた分も元彦はノータッチだったと県教育委員会関係者が証言。"},
+    {id:23, q:"はばタンpay＋のPR用うちわのサンプルを持ってきた職員に斎藤元彦がパワハラをかました理由は？", A:"内容が間違えていた", B:"元彦の顔が印刷されてなかった", correct:"B", cpu:"B_correct",cpuDelay:3, explain:"うちわを見た元彦は舌打ちをし、大きなため息をついてから何が悪いか分かるか？と職員を詰問した。正解は「うちわに自分の顔が入っていない！」だった。"},
+    {id:24, q:"閉店時間を過ぎても喫茶室に居座っていた斎藤元彦を注意したスタッフに向けて斎藤元彦が発したセリフとは？", A:"申し訳ありません。", B:"知事の斎藤ですけど。", correct:"B", cpu:"A_wrong", cpuDelay:3,explain:"びっくりして兵庫県知事ですと名乗ったという常人には理解できない言い訳を斎藤元彦は展開した。喫茶室スタッフの証言によると、閉店時間を10分過ぎても居座る斎藤元彦に退店を促した際に真顔で「知事の斎藤ですけど、話し合いしてました」とだけ言い残し、謝罪の一言も無く出て行った模様。"},
+    {id:25, q:"大赤字確定の楽市楽座に斎藤元彦が流した税金の額は？", A:"4億円", B:"吉村が悪い", correct:"A", cpu:"B_wrong", cpuDelay:1,explain:"ガラガラである。"},
+    {id:26, q:"斎藤元彦を殿と慕う側近のアカウント名は？", A:"粗品", B:"祖品", correct:"B", cpu:"A_wrong", cpuDelay:1,explain:"祖品(そしー)は、リーダーなき応援団である斎藤元彦選挙ボランティアチームのリーダーを務めていた。なお、祖品が中心となって集めて渡した寄せ書きの事を斎藤元彦は知らないと言い放った。"},
+    {id:27, q:"8月15日に甲子園で野球観戦をして炎上した斎藤元彦。彼が自撮りした際に手に持っていたものは？", A:"岩津ネギ。", B:"かき氷。", correct:"B", cpu:"B_correct", cpuDelay:5,explain:"終戦記念日に戦没者慰霊式への出席を部下に押し付けてサボった挙句、戦勝国の国旗をあしらったシャツを着用して甲子園でかき氷片手に自撮りという反日行為で大炎上した。"},
+    {id:28, q:"兵庫県の朝鮮学校への補助金支出額は全国何位？", A:"1位", B:"2位", correct:"A", cpu:"A_correct",cpuDelay:4, explain:"斎藤元彦県政における朝鮮学校への補助金支出額は全国断トツ1位であり、日本全体の5割以上を占めている。"},
+    {id:29, q:"知らない人がいたという理由で斎藤元彦が部下にキレた場所は？", A:"更衣室", B:"知事室", correct:"A", cpu:"A_correct", cpuDelay:4,explain:"びっくりしたらしい。"},
+    {id:30, q:"昼食が冷めてた事に斎藤元彦がキレた時のメニューは？", A:"ごはんとみそ汁", B:"山椒味噌焼き", correct:"A", cpu:"A_correct", cpuDelay:5,explain:"担当者は秘書広報室長から「知事が怒っている。なぜ冷えた料理を出したのか。」と叱責された。なお、適温で提供できなかったのはミスでは無く施設の関係で仕方のない事であった。"}
   ];
 
   // ゲーム定数
@@ -368,31 +368,69 @@ document.addEventListener('visibilitychange', () => {
     markEl.textContent = ok ? '◯' : '×';
   }
 
-  // CPUの回答シミュレーション
-  function scheduleCPUAnswer(){
-    answeredCPU = false;
-    cpuWillBeSilent = false;
-    const behavior = currentQuestion.cpu || '';
-    if(behavior === 'silent' || behavior === 'silent_hiko4'){
-      // change CPU to hiko4 if specified
-      if(behavior === 'silent_hiko4') cpuImg.src = 'hiko4.png';
-      cpuWillBeSilent = true;
-      return;
-    }
+// CPUの回答シミュレーション（差し替え用：問題ごとの cpuDelay に対応）
+function scheduleCPUAnswer(){
+  answeredCPU = false;
+  cpuWillBeSilent = false;
+  const behavior = (currentQuestion && currentQuestion.cpu) ? currentQuestion.cpu : '';
 
-    // determine cpu's choice depending on behavior tags:
-    // possible tags in our data: "A_wrong","B_wrong","A_correct","B_correct"
-    // default: answer immediately with a random delay, and choose A/B according to tag
-    let choice = 'A';
-    if(behavior === 'A_wrong') choice = 'A';
-    else if(behavior === 'B_wrong') choice = 'B';
-    else if(behavior === 'A_correct') choice = 'A';
-    else if(behavior === 'B_correct') choice = 'B';
-    else {
-      // fallback: choose randomly but not repeat correctness if design
-      choice = Math.random() < 0.5 ? 'A' : 'B';
-    }
+  // サイレント系（CPUが答えない）ならここで終わり
+  if(behavior === 'silent' || behavior === 'silent_hiko4'){
+    if(behavior === 'silent_hiko4') cpuImg.src = 'hiko4.png';
+    cpuWillBeSilent = true;
+    return;
+  }
 
+  // 問題ごとのCPU遅延（秒）。指定なければデフォルト1.0秒（お好みで変更）
+  const delaySec = (currentQuestion && currentQuestion.cpuDelay) ? currentQuestion.cpuDelay : 1.0;
+  const delayMs = Math.max(0, delaySec * 1000);
+
+  // CPUの選択肢を決める（behavior タグに基づく）
+  let choice = Math.random() < 0.5 ? 'A' : 'B';
+  if(behavior === 'A_wrong' || behavior === 'A_correct') choice = 'A';
+  else if(behavior === 'B_wrong' || behavior === 'B_correct') choice = 'B';
+  // （必要なら他の behavior タグもここで追加）
+
+  // 遅延して CPU が回答する処理（元のロジックと同等）
+  setTimeout(() => {
+    // 既に別処理で回答済みなら何もしない
+    if(answeredCPU) return;
+    if(hasAnyCorrect) return; // すでに誰かが正解していたら不要
+
+    answeredCPU = true;
+
+    // CPUアイコンを選択肢上に表示
+    if(choice === 'A') overlayA_cpu.style.display = 'block';
+    else overlayB_cpu.style.display = 'block';
+
+    const correct = currentQuestion ? currentQuestion.correct : null;
+    const isCorrect = (correct === choice) || (correct === 'AB') || (correct === 'both');
+
+    if(isCorrect){
+      markChoice(choice, true);
+      cpuScore++;
+      cpuScoreEl.textContent = cpuScore;
+      try{ sfxCorrect.currentTime = 0; sfxCorrect.play().catch(()=>{}); }catch(e){}
+      cpuImg.src = 'hiko3.png';   // CPU正解時の画像
+      playerImg.src = 'player2.png'; // プレイヤーが負け表情
+      hasAnyCorrect = true;
+      clearTimer();
+      showExplanation();
+    } else {
+      markChoice(choice, false);
+      try{ sfxWrong.currentTime = 0; sfxWrong.play().catch(()=>{}); }catch(e){}
+      cpuImg.src = 'hiko2.png';   // CPU不正解時の画像
+      playerImg.src = 'player3.png';
+      // プレイヤーが既に回答済み、またはプレイヤーが回答不可なら終了
+      if(answeredPlayer || !playerCanAnswer()){
+        clearTimer();
+        showExplanation();
+      }
+    }
+  }, delayMs);
+}
+
+    
     // simulate CPU answering quickly (few hundred ms) unless player answered first
     const delay = 400 + Math.floor(Math.random()*400); // 400-800ms
     setTimeout(()=>{
@@ -432,7 +470,6 @@ document.addEventListener('visibilitychange', () => {
         }
       }
     }, delay);
-  }
 
   function playerCanAnswer(){
     return !answeredPlayer;
@@ -584,6 +621,7 @@ startBtn.addEventListener('click', () => {
 
   // Safety: if bgm didn't start due to autoplay restrictions, user can press bgmToggle
 })();
+
 </script>
 </body>
 </html>
